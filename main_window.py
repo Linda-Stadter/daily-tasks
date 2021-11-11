@@ -7,7 +7,6 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtWidgets import *
 
-import random
 from main_gui import Ui_MainWindow
 from formating import *
 from calendar_widget import *
@@ -85,6 +84,7 @@ class MainWindow(QMainWindow):
         msg.setIcon(QMessageBox.Warning)
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msg.setDefaultButton(QMessageBox.Cancel)
+        msg.buttonClicked.connect(lambda x: self.cancel_task(x, msg, sender))
         msg.exec()
 
     def show_delete_warning(self, sender):
@@ -115,6 +115,20 @@ class MainWindow(QMainWindow):
         # delete from db
         res = self.db_task.sql_query_commit("DELETE FROM tasks WHERE id={}".format(id))
         res = self.db_joint.sql_query_commit("DELETE FROM data_joint WHERE task_id={}".format(id))
+
+    def cancel_task(self, button, msg, sender):
+        if button == msg.button(QMessageBox.Cancel):
+            return
+        id = self.widget_task_ids[sender]
+        task = self.db_task.sql_query("SELECT * FROM tasks WHERE id = {}".format(id))
+        task = task[0]
+        print(task)
+        new_end_date = datetime.date.today()
+        new_days = (datetime.datetime.today() - datetime.datetime.strptime(task[4],  "%Y-%m-%d")).days
+        self.db_task.update_row(id, task[1], new_days, task[3], task[4], new_end_date, task[6])
+
+        self.update_tasks_todo(id, 1)
+        sender.deleteLater()
 
     def change_page(self, page):
         self.ui.Pages_Widget.setCurrentWidget(page)
@@ -242,10 +256,11 @@ class MainWindow(QMainWindow):
         for task in tasks:
             day_difference = (datetime.datetime.strptime(task[4],  "%Y-%m-%d") - datetime.datetime.strptime(oldest_start_date,  "%Y-%m-%d")).days
             task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], day_difference, task[6])
+            self.widget_task_ids[task_widget] = task[0]
             layout.addWidget(task_widget)
     
     def compute_tasks_count_quantiles(self):
-        res = self.db_joint.sql_query("SELECT date, count(task_id) FROM data_joint GROUP BY date")
+        res = self.db_joint.sql_query("SELECT date, count(task_id) FROM data_joint WHERE check_number != 0 GROUP BY date")
         if not res:
             return [], []
         tasks_per_day = {x[0]: x[1] for x in res}

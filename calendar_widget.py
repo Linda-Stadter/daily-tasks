@@ -43,4 +43,3 @@ class CalendarWidget(QtWidgets.QWidget):
         tooltip.show()
 
         self.tooltip = tooltip
-

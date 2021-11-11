@@ -95,3 +95,4 @@ def add_bgcolor_to_style(color, style):
 
 def add_to_style(add, style):
     return style + add
+    

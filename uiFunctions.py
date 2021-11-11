@@ -112,3 +112,4 @@ def create_task_widget(window, task_id, name, days, duration, day_difference, co
     task_layout.addWidget(checkbox_widget)
 
     return task_widget
+    

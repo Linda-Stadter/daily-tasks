@@ -12,5 +12,5 @@ def convert_time(time):
 
 def format_list_sql_query(query, list):
     if len(list) == 1:
-        return "{} = {}".format(query, list.pop())
+        return "{} = {}".format(query, next(iter(list)))
     return "{} in {}".format(query, tuple(list))

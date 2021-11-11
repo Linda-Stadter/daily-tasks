@@ -73,6 +73,15 @@ class SQLTaskConnection(SQLConnection):
         connection.close()
 
         return self.current_id
+    
+    def update_row(self, task_id, taskName, days, duration, startDate, endDate, color):
+        """Updates a task in task_data"""
+        connection = sqlite3.connect("{}.db".format(self.db_name))
+        c = connection.cursor()
+        values = {"task_id": task_id, "taskName": taskName, "days": days, "duration": duration, "startDate": startDate, "endDate": endDate, "color": color}
+        c.execute("UPDATE tasks SET taskName=:taskName, days=:days, duration=:duration, startDate=:startDate, endDate=:endDate, color=:color WHERE id=:task_id", values)
+        connection.commit()
+        connection.close()
 
 class SQLJointConnection(SQLConnection):
     def __init__(self, db_name):
