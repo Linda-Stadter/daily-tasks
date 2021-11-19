@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.db_task = SQLTaskConnection("task_data")
         self.db_joint = SQLJointConnection("data_joint")
+        self.year = datetime.datetime.today().year
 
         self.resize(QtCore.QSize(800, 600))
         self.setMinimumSize(QtCore.QSize(800, 600))
@@ -65,6 +66,8 @@ class MainWindow(QMainWindow):
         self.ui.Btn_Menu_1.clicked.connect(lambda: self.change_page(self.ui.page_show_tasks))
         self.ui.Btn_Menu_3.clicked.connect(lambda: self.change_page(self.ui.page_statistics))
         self.ui.Button_AddTask.clicked.connect(self.insert_new_task)
+        self.ui.button_last_year.clicked.connect(lambda: self.change_calendar_year(-1))
+        self.ui.button_next_year.clicked.connect(lambda: self.change_calendar_year(+1))
     
     def custom_context_menu(self, event):
         contextMenu = QMenu(self)
@@ -268,21 +271,29 @@ class MainWindow(QMainWindow):
 
         return quantiles, tasks_per_day
 
+    def change_calendar_year(self, i):
+        current_year = datetime.datetime.today().year
+        year = self.year + i
+        self.year = year if year <= current_year else current_year
+        
+        # delete old calendar
+        for i in range(self.ui.calendar.count()):
+            self.ui.calendar.itemAt(i).widget().deleteLater()
+
+        # create new one with new year
+        self.create_calendar_statistics()
+
     def create_calendar_statistics(self):
         quantiles, tasks_per_day = self.compute_tasks_count_quantiles()
 
-        #TODO make year dynamic
-        year = 2021
-        label = self.ui.history_label
-        text = "{} {}".format(label.text(), year)
-        label.setText(text)
+        self.ui.year_label.setText("{}".format(self.year))
 
         columns = 7
         calendar_grid = self.ui.calendar
         calendar_grid.setSpacing(2)
         d = 0
         for month in range(1, 13):
-            month_calendar = calendar.monthcalendar(2021, month)
+            month_calendar = calendar.monthcalendar(self.year, month)
             for week in month_calendar:
                 for day in week:
                     count = 0
@@ -294,7 +305,7 @@ class MainWindow(QMainWindow):
                     # do not count rows for all other 0 days
                     elif day == 0:
                         continue
-                    date = datetime.date(2021, month, day)
+                    date = datetime.date(self.year, month, day)
                     color = 0
                     try: 
                         count = tasks_per_day[str(date)]
@@ -306,7 +317,7 @@ class MainWindow(QMainWindow):
                     except:
                         color = 0
 
-                    date = datetime.date(year, month, day)
+                    date = datetime.date(self.year, month, day)
                     day_widget = create_calendar_day_widget(self, date, count, color)
                     calendar_grid.addWidget(day_widget, d%columns, d//columns)
 
