@@ -37,7 +37,6 @@ class MainWindow(QMainWindow):
         self.init_flow_layouts()
         self.init_tasks_todo()
         self.init_tasks()
-        self.create_calendar_statistics()
         self.init_effects()
         self.connect_buttons()
 
@@ -64,7 +63,7 @@ class MainWindow(QMainWindow):
         self.ui.Btn_Toggle.clicked.connect(lambda: self.toggle_menu(130))
         self.ui.Btn_Menu_2.clicked.connect(lambda: self.change_page(self.ui.page_add_task))
         self.ui.Btn_Menu_1.clicked.connect(lambda: self.change_page(self.ui.page_show_tasks))
-        self.ui.Btn_Menu_3.clicked.connect(lambda: self.change_page(self.ui.page_statistics))
+        self.ui.Btn_Menu_3.clicked.connect(self.show_statistics)
         self.ui.Button_AddTask.clicked.connect(self.insert_new_task)
         self.ui.button_last_year.clicked.connect(lambda: self.change_calendar_year(-1))
         self.ui.button_next_year.clicked.connect(lambda: self.change_calendar_year(+1))
@@ -72,7 +71,6 @@ class MainWindow(QMainWindow):
     def custom_context_menu(self, event):
         contextMenu = QMenu(self)
         delete = contextMenu.addAction("Delete")
-        #TODO implement Cancel Task
         cancel_task = contextMenu.addAction("Cancel Task")
         action = contextMenu.exec_(self.mapToGlobal(self.mapFromGlobal(QtGui.QCursor.pos())))
         if action == delete:
@@ -271,21 +269,34 @@ class MainWindow(QMainWindow):
 
         return quantiles, tasks_per_day
 
+    def show_statistics(self):
+        if self.ui.calendar.count() < 1:
+            # create new calendar
+            self.create_calendar_statistics()
+        else:
+            # update calendar if there already exists one
+            self.update_calendar_statistics()
+
+        # show statistics page
+        self.change_page(self.ui.page_statistics)
+
     def change_calendar_year(self, i):
+        # change year if updated year is not in the future
         current_year = datetime.datetime.today().year
         year = self.year + i
         self.year = year if year <= current_year else current_year
-        
+        # update shown calendar using the updated year
+        self.update_calendar_statistics()
+
+    def update_calendar_statistics(self):
         # delete old calendar
         for i in range(self.ui.calendar.count()):
             self.ui.calendar.itemAt(i).widget().deleteLater()
-
-        # create new one with new year
+        # create new one
         self.create_calendar_statistics()
 
     def create_calendar_statistics(self):
         quantiles, tasks_per_day = self.compute_tasks_count_quantiles()
-
         self.ui.year_label.setText("{}".format(self.year))
 
         columns = 7
