@@ -1,5 +1,5 @@
 rounded_box = "font-weight: normal; color: #FFF; border-radius: 6px; font-size: 14px; padding: 2 2 2 2px;"
-smaller_rounded_box = "font-weight: normal; color: #FFF; border-radius: 4px; font-size: 12px; padding: 3 5 3 5px;"
+smaller_rounded_box = "font-weight: normal; color: #FFF; border-radius: 4px; font-size: 14px; padding: 3 5 3 5px;"
 
 calendar_widget_style = """
                 border-radius: 2px;

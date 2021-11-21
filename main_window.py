@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
 
     def init_effects(self):
-        add_shadow_effect(self.ui.scrollArea)
+        add_shadow_effect(self.ui.task_overview)
         add_shadow_effect(self.ui.history)
         add_shadow_effect(self.ui.tasks_todo)
         add_shadow_effect(self.ui.add_task_widget)
@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         id = self.widget_task_ids[sender]
         task = self.db_task.sql_query("SELECT * FROM tasks WHERE id = {}".format(id))
         task = task[0]
-        print(task)
+
         new_end_date = datetime.date.today()
         new_days = (datetime.datetime.today() - datetime.datetime.strptime(task[4],  "%Y-%m-%d")).days
         self.db_task.update_row(id, task[1], new_days, task[3], task[4], new_end_date, task[6])
@@ -246,7 +246,7 @@ class MainWindow(QMainWindow):
 
     def init_tasks(self):
         layout = self.ui.tasks_widget.layout()
-        layout.setSpacing(30)
+        layout.setSpacing(10)
 
         tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE endDate > strftime('%Y-%m-%d', 'now')")
         if not tasks:

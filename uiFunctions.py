@@ -67,6 +67,7 @@ def create_task_widget(window, task_id, name, days, duration, day_difference, co
     task_widget.customContextMenuRequested.connect(window.custom_context_menu)
     task_layout = QVBoxLayout()
     task_layout.setSpacing(0)
+    task_layout.setContentsMargins(1, 9, 17, 9)
 
     #set alignment in your vertical layout
     task_layout.setAlignment(QtCore.Qt.AlignTop)
@@ -79,16 +80,19 @@ def create_task_widget(window, task_id, name, days, duration, day_difference, co
     style = add_bgcolor_to_style(color, smaller_rounded_box)
     horizontal_layout = QHBoxLayout()
     
-    name_label = QLabel(name)
-    style = add_bgcolor_to_style(color, smaller_rounded_box)
-    style = add_to_style("margin-right: -5px;", style)
-    name_label.setStyleSheet(style)
-
-    duration_label = QLabel(convert_time(duration))
+    duration = convert_time(duration)
+    duration_label = QLabel(duration)
     style = add_bgcolor_to_style(color, smaller_rounded_box)
     style = add_to_style("margin-left: -5px;", style)
     duration_label.setStyleSheet(style)
     duration_label.setAlignment(QtCore.Qt.AlignRight)
+
+    max_char_length = 30
+    name_length = max_char_length - len(duration)
+    name_label = QLabel(name[:name_length])
+    style = add_bgcolor_to_style(color, smaller_rounded_box)
+    style = add_to_style("margin-right: -5px;", style)
+    name_label.setStyleSheet(style)
 
     horizontal_layout.addWidget(name_label)
     horizontal_layout.addWidget(duration_label)
