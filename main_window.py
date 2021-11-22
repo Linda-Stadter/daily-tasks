@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.init_ui()
+        self.init_menu_width = self.ui.frame_left_menu.minimumWidth()
 
         self.show()
 
@@ -54,10 +55,12 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
 
     def init_effects(self):
+        add_shadow_effect(self.ui.frame_left_menu)
         add_shadow_effect(self.ui.task_overview)
         add_shadow_effect(self.ui.history)
         add_shadow_effect(self.ui.tasks_todo)
         add_shadow_effect(self.ui.add_task_widget)
+        add_shadow_effect(self.ui.effect_test_2, 5)
 
     def connect_buttons(self):
         self.ui.Btn_Toggle.clicked.connect(lambda: self.toggle_menu(130))
@@ -136,8 +139,8 @@ class MainWindow(QMainWindow):
 
     def toggle_menu(self, max_width):
         current_width = self.ui.frame_left_menu.width()
-        end_width = 60
-        if current_width == 60:
+        end_width = self.init_menu_width
+        if current_width == self.init_menu_width:
             end_width = max_width
         else:
             self.ui.Btn_Menu_1.setText("")

@@ -30,10 +30,10 @@ def show_delete_warning(window, sender):
     msg.buttonClicked.connect(lambda x: window.delete_task(x, msg, sender))
     msg.exec()
 
-def add_shadow_effect(widget):
+def add_shadow_effect(widget, radius=15):
     effect = QGraphicsDropShadowEffect()
-    effect.setColor(QtGui.QColor(0, 0, 0, 50))
-    effect.setBlurRadius(15)
+    effect.setColor(QtGui.QColor(179, 199, 232, 217))
+    effect.setBlurRadius(radius)
     effect.setXOffset(0)
     effect.setYOffset(0)
     widget.setGraphicsEffect(effect)
@@ -43,7 +43,7 @@ def get_random_color():
 
 # Creating widgets
 def create_calendar_day_widget(window, date, count, color):
-    colors = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"]
+    colors = ["#dde6f6", "#9be9a8", "#40c463", "#30a14e", "#216e39"]
 
     day_widget = CalendarWidget(window, date, count)
     style = calendar_widget_style.format(colors[color])
@@ -110,6 +110,8 @@ def create_task_widget(window, task_id, name, days, duration, day_difference, co
 
     for d in range(checkbar_number):
         checkbox_id = d - day_difference
+        # TODO hovering shows date
+        # TODO calendar layout
         check_bar = CheckBar(checkbox_id, task_id, window, color)
         checkbox_grid.addWidget(check_bar, d//checkbox_rows, d%checkbox_rows)
 

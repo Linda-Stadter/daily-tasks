@@ -1,5 +1,5 @@
-rounded_box = "font-weight: normal; color: #FFF; border-radius: 6px; font-size: 14px; padding: 2 2 2 2px;"
-smaller_rounded_box = "font-weight: normal; color: #FFF; border-radius: 4px; font-size: 14px; padding: 3 5 3 5px;"
+rounded_box = "font-weight: normal; color: #FFF; border-radius: 7px; font-size: 14px; padding: 2 2 2 2px;"
+smaller_rounded_box = "font-weight: normal; color: #FFF; border-radius: 7px; font-size: 14px; padding: 3 5 3 5px;"
 
 calendar_widget_style = """
                 border-radius: 2px;
@@ -20,7 +20,7 @@ check_bar = """
                 """
 
 check_bar_unclicked = """
-                    border: 2px solid #B7C5C9;
+                    border: 2px solid #dde6f6;
                     border-radius: 6px;
                     background-color: white;
                     """
@@ -38,9 +38,9 @@ check_bar_second_click = """
                     """
 
 check_bar_unclickable = """
-                    border: 2px solid #adaaa6;
+                    border: 2px solid #b8c2d4;
                     border-radius: 6px;
-                    background-color: #d4d1cd;
+                    background-color: #dde6f6;
                     """
 
 check_bar_today_unclicked = """
