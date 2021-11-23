@@ -37,7 +37,7 @@ class CalendarWidget(QtWidgets.QWidget):
         weekday = self.weekdays[self.date.weekday()]
         text = "{}, {} \n{} Tasks".format(weekday, self.date, self.task_count)
         tooltip = QLabel(text, self.window.ui.centralwidget)
-        tooltip.move(self.pos()+QtCore.QPoint(100, 60))
+        tooltip.move(self.pos()+QtCore.QPoint(120, 100))
         tooltip.setStyleSheet(calendar_tooltip_style)
         tooltip.adjustSize()
         tooltip.show()
