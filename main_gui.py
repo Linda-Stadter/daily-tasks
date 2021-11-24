@@ -463,7 +463,9 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.task_field.setFont(font)
         self.task_field.setStyleSheet("background:#f6f9ff;\n"
-"color: #253a7f;")
+"color: #253a7f;\n"
+"border-radius: 5px;\n"
+"padding-left: 3px;")
         self.task_field.setText("")
         self.task_field.setObjectName("task_field")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.task_field)
@@ -480,8 +482,11 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.day_field.setFont(font)
         self.day_field.setStyleSheet("background:#f6f9ff;\n"
-"color: #253a7f;")
+"color: #253a7f;\n"
+"border-radius: 5px;\n"
+"padding-left: 3px;")
         self.day_field.setInputMethodHints(QtCore.Qt.ImhDigitsOnly)
+        self.day_field.setText("")
         self.day_field.setObjectName("day_field")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.day_field)
         self.label_4 = QtWidgets.QLabel(self.add_task_widget)
@@ -497,7 +502,9 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.time_field.setFont(font)
         self.time_field.setStyleSheet("background:#f6f9ff;\n"
-"color: #253a7f;")
+"color: #253a7f;\n"
+"border-radius: 5px;\n"
+"padding-left: 3px;")
         self.time_field.setObjectName("time_field")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.time_field)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
