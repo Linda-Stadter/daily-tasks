@@ -61,7 +61,7 @@ def create_tasks_todo_widget(name, color):
     label.setStyleSheet(style)
     return label
 
-def create_task_widget(window, task_id, name, days, duration, day_difference, color):
+def create_task_widget(window, task_id, name, days, duration, start_date, day_difference, color):
     task_widget = QWidget()
     task_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
     task_widget.customContextMenuRequested.connect(window.custom_context_menu)
@@ -112,7 +112,8 @@ def create_task_widget(window, task_id, name, days, duration, day_difference, co
         checkbox_id = d - day_difference
         # TODO hovering shows date
         # TODO calendar layout
-        check_bar = CheckBar(checkbox_id, task_id, window, color)
+        date = start_date + datetime.timedelta(days=checkbox_id)
+        check_bar = CheckBar(checkbox_id, task_id, date, window, color)
         checkbox_grid.addWidget(check_bar, d//checkbox_rows, d%checkbox_rows)
 
     task_layout.addWidget(checkbox_widget)

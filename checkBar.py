@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPaintEvent
 from PyQt5.QtWidgets import *
 from stylesheets import *
@@ -7,7 +8,8 @@ import datetime
 class CheckBar(QtWidgets.QWidget):
 
     checked = 0
-    def __init__(self, day_id, task_id, window, color):
+    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    def __init__(self, day_id, task_id, date, window, color):
         super().__init__()
         width = 22
         self.setFixedWidth(width)
@@ -16,14 +18,17 @@ class CheckBar(QtWidgets.QWidget):
         self.task_id = task_id
         self.window = window 
         self.color = color
+        self.date = date
         
         self.widget = QWidget(self)
         self.widget.setFixedWidth(width)
         self.widget.setFixedHeight(width)
+        self.installEventFilter(self)
 
         # get data from database
         self.read_color()
         self.get_start_date()
+
 
     def paintEvent(self, e: QPaintEvent):
         if self.checked == 0:
@@ -84,3 +89,22 @@ class CheckBar(QtWidgets.QWidget):
             self.checked = result[0][0]
             self.update()
 
+    def eventFilter(self, a0: 'QObject', a1: 'QEvent') -> bool:
+        if a1.type() == QEvent.Enter:
+            self.create_tooltip(a0, a1)
+        return super().eventFilter(a0, a1)
+
+    def leaveEvent(self, a0: QtCore.QEvent) -> None:
+        self.tooltip.deleteLater()
+        return super().leaveEvent(a0)
+
+    def create_tooltip(self, a0, a1):
+        weekday = self.weekdays[self.date.weekday()]
+        text = "{}, {} \n".format(weekday, self.date.strftime("%Y-%m-%d"))
+        tooltip = QLabel(text, self.window.ui.centralwidget)
+        #tooltip.move(self.pos())+QtCore.QPoint(320, 250))
+        #tooltip.setStyleSheet(calendar_tooltip_style)
+        #tooltip.adjustSize()
+        #tooltip.show()
+
+        self.tooltip = tooltip
