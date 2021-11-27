@@ -8,7 +8,7 @@ calendar_widget_style = """
 
 calendar_tooltip_style = """
                 color: #fff;
-                border-radius: 2px;
+                border-radius: 5px;
                 background-color: #4b4b4b;
                 padding: 5 5 5 5px;
                 """

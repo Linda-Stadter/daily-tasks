@@ -100,11 +100,12 @@ class CheckBar(QtWidgets.QWidget):
 
     def create_tooltip(self, a0, a1):
         weekday = self.weekdays[self.date.weekday()]
-        text = "{}, {} \n".format(weekday, self.date.strftime("%Y-%m-%d"))
+        text = "{}, {}".format(weekday, self.date.strftime("%Y-%m-%d"))
         tooltip = QLabel(text, self.window.ui.centralwidget)
-        #tooltip.move(self.pos())+QtCore.QPoint(320, 250))
-        #tooltip.setStyleSheet(calendar_tooltip_style)
-        #tooltip.adjustSize()
-        #tooltip.show()
+        position = self.window.ui.centralwidget.mapFromGlobal(self.pos() + self.parent().mapToGlobal(QtCore.QPoint(20, 30)))
+        tooltip.move(position)
+        tooltip.setStyleSheet(calendar_tooltip_style)
+        tooltip.adjustSize()
+        tooltip.show()
 
         self.tooltip = tooltip
