@@ -245,7 +245,9 @@ class MainWindow(QMainWindow):
         layout = self.ui.tasks_widget.layout()
         layout.setSpacing(10)
 
-        tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE endDate > strftime('%Y-%m-%d', 'now')")
+        sql_end_date = "{}-{}-01".format(self.year, self.month)
+        sql_start_date = "{}-{}-31".format(self.year, self.month)
+        tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE startDate <= strftime('%Y-%m-%d', '{}') and endDate >= strftime('%Y-%m-%d', '{}')".format(sql_start_date, sql_end_date))
         if not tasks:
             return
         tasks.sort(key=lambda x: x[2], reverse=True)
@@ -278,8 +280,14 @@ class MainWindow(QMainWindow):
 
     def change_tasks_month(self, i):
         self.month = (self.month + i) % 12
-        self.month = 12 if self.month == 0 else self.month
-        self.ui.month_label.setText("{}".format(self.month))
+        if self.month == 0:
+            self.month = 12
+            if i < 0:
+                self.year += i
+        if self.month == 1 and i > 0:
+            self.year += i
+        month_name = calendar.month_abbr[self.month]
+        self.ui.month_label.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
         self.update_task_overview()
 

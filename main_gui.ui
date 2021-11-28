@@ -840,14 +840,29 @@ border-radius: 10px;</string>
                       <item>
                        <widget class="QLabel" name="month_label">
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>60</width>
+                          <height>0</height>
+                         </size>
+                        </property>
                         <property name="palette">
                          <palette>
                           <active>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>37</red>
+                              <green>58</green>
+                              <blue>98</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
                            <colorrole role="Button">
                             <brush brushstyle="SolidPattern">
                              <color alpha="255">
@@ -877,6 +892,15 @@ border-radius: 10px;</string>
                            </colorrole>
                           </active>
                           <inactive>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>37</red>
+                              <green>58</green>
+                              <blue>98</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
                            <colorrole role="Button">
                             <brush brushstyle="SolidPattern">
                              <color alpha="255">
@@ -906,6 +930,15 @@ border-radius: 10px;</string>
                            </colorrole>
                           </inactive>
                           <disabled>
+                           <colorrole role="WindowText">
+                            <brush brushstyle="SolidPattern">
+                             <color alpha="255">
+                              <red>120</red>
+                              <green>120</green>
+                              <blue>120</blue>
+                             </color>
+                            </brush>
+                           </colorrole>
                            <colorrole role="Button">
                             <brush brushstyle="SolidPattern">
                              <color alpha="255">
@@ -945,10 +978,13 @@ border-radius: 10px;</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#253a62;&quot;&gt;11&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#253a62;&quot;&gt;Nov 21&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="scaledContents">
                          <bool>false</bool>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
                         </property>
                         <property name="margin">
                          <number>5</number>
