@@ -1,4 +1,5 @@
 import random
+import calendar
 
 from PyQt5 import *
 from PyQt5 import QtCore, QtGui
@@ -61,7 +62,7 @@ def create_tasks_todo_widget(name, color):
     label.setStyleSheet(style)
     return label
 
-def create_task_widget(window, task_id, name, days, duration, start_date, day_difference, color):
+def create_task_widget(window, task_id, name, days, duration, start_date, color, month):
     task_widget = QWidget()
     task_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
     task_widget.customContextMenuRequested.connect(window.custom_context_menu)
@@ -106,15 +107,17 @@ def create_task_widget(window, task_id, name, days, duration, start_date, day_di
     checkbox_widget.setLayout(checkbox_grid)
     checkbox_rows = 7
 
-    checkbar_number = days + day_difference
+    today = datetime.datetime.today()
 
-    for d in range(checkbar_number):
-        checkbox_id = d - day_difference
-        # TODO hovering shows date
-        # TODO calendar layout
-        date = start_date + datetime.timedelta(days=checkbox_id)
+    d = 0
+    calendar_object = calendar.Calendar()
+    for date in calendar_object.itermonthdates(today.year, month):
+        checkbox_id = (date - start_date).days
+        if checkbox_id > days:
+            checkbox_id = -1
         check_bar = CheckBar(checkbox_id, task_id, date, window, color)
         checkbox_grid.addWidget(check_bar, d//checkbox_rows, d%checkbox_rows)
+        d += 1
 
     task_layout.addWidget(checkbox_widget)
 

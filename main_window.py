@@ -23,6 +23,7 @@ class MainWindow(QMainWindow):
         self.db_task = SQLTaskConnection("task_data")
         self.db_joint = SQLJointConnection("data_joint")
         self.year = datetime.datetime.today().year
+        self.month = datetime.datetime.today().month
 
         self.resize(QtCore.QSize(800, 600))
         self.setMinimumSize(QtCore.QSize(800, 600))
@@ -70,6 +71,8 @@ class MainWindow(QMainWindow):
         self.ui.Button_AddTask.clicked.connect(self.insert_new_task)
         self.ui.button_last_year.clicked.connect(lambda: self.change_calendar_year(-1))
         self.ui.button_next_year.clicked.connect(lambda: self.change_calendar_year(+1))
+        self.ui.button_last_month.clicked.connect(lambda: self.change_tasks_month(-1))
+        self.ui.button_next_month.clicked.connect(lambda: self.change_tasks_month(+1))
     
     def custom_context_menu(self, event):
         contextMenu = QMenu(self)
@@ -233,18 +236,7 @@ class MainWindow(QMainWindow):
         task_id = self.db_task.insert_task(name_input, days_input, duration_input, start_date, rnd_color)
 
         # insert new task into ui
-        layout = self.ui.tasks_widget.layout()
-        tasks = self.db_task.sql_query( "SELECT * FROM tasks WHERE endDate > strftime('%Y-%m-%d', 'now')")
-        tasks.sort(key=lambda x: x[2], reverse=True)
-
-        oldest_start_date = sorted(tasks, key=lambda x: x[4])[0][4] if tasks else str(start_date)
-        oldest_start_date = datetime.datetime.strptime(oldest_start_date,  "%Y-%m-%d")
-        day_difference = (start_date - oldest_start_date.date()).days
-        # align tasks to week, starting with monday
-        day_difference += oldest_start_date.weekday()
-        task_widget = create_task_widget(self, task_id, name_input, days_input, duration_input, start_date, day_difference, rnd_color)
-        self.widget_task_ids[task_widget] = task_id
-        layout.addWidget(task_widget)
+        self.update_task_overview()
 
         self.update_tasks_todo(task_id, 0)
         self.change_page(self.ui.page_show_tasks)
@@ -257,15 +249,10 @@ class MainWindow(QMainWindow):
         if not tasks:
             return
         tasks.sort(key=lambda x: x[2], reverse=True)
-        oldest_start_date = sorted(tasks, key=lambda x: x[4])[0][4]
-        oldest_start_date = datetime.datetime.strptime(oldest_start_date,  "%Y-%m-%d")
 
         for task in tasks:
             task_start_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
-            day_difference = (task_start_date - oldest_start_date).days
-            # align tasks to week, starting with monday
-            day_difference += oldest_start_date.weekday()
-            task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date, day_difference, task[6])
+            task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date.date(), task[6], self.month)
             self.widget_task_ids[task_widget] = task[0]
             layout.addWidget(task_widget)
     
@@ -289,13 +276,28 @@ class MainWindow(QMainWindow):
         # show statistics page
         self.change_page(self.ui.page_statistics)
 
+    def change_tasks_month(self, i):
+        self.month = (self.month + i) % 12
+        self.month = 12 if self.month == 0 else self.month
+        self.ui.month_label.setText("{}".format(self.month))
+
+        self.update_task_overview()
+
     def change_calendar_year(self, i):
         # change year if updated year is not in the future
         current_year = datetime.datetime.today().year
         year = self.year + i
         self.year = year if year <= current_year else current_year
+        self.ui.year_label.setText("{}".format(self.year))
         # update shown calendar using the updated year
         self.update_calendar_statistics()
+
+    def update_task_overview(self):
+        # delete old tasks
+        for i in range(self.ui.tasks_widget.layout().count()):
+            self.ui.tasks_widget.layout().itemAt(i).widget().deleteLater()
+        # create new ones
+        self.init_tasks()
 
     def update_calendar_statistics(self):
         # delete old calendar
@@ -306,7 +308,6 @@ class MainWindow(QMainWindow):
 
     def create_calendar_statistics(self):
         quantiles, tasks_per_day = self.compute_tasks_count_quantiles()
-        self.ui.year_label.setText("{}".format(self.year))
 
         columns = 7
         calendar_grid = self.ui.calendar
