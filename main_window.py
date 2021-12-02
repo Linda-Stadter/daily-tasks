@@ -26,14 +26,15 @@ class MainWindow(QMainWindow):
         self.year = datetime.datetime.today().year
         self.month = datetime.datetime.today().month
 
-        self.resize(QtCore.QSize(900, 600))
-        self.setMinimumSize(QtCore.QSize(900, 600))
+        self.resize(QtCore.QSize(850, 600))
+        self.setMinimumSize(QtCore.QSize(850, 600))
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.init_ui()
         self.init_menu_width = self.ui.frame_left_menu.minimumWidth()
 
+        self.setStyleSheet(scrollArea_style)
         self.show()
 
     def init_ui(self):
@@ -240,6 +241,7 @@ class MainWindow(QMainWindow):
 
     def init_tasks(self):
         scrollArea = self.task_overviews_per_month[self.month-1]
+
         if scrollArea:
             scrollArea.setVisible(True)
         else:
@@ -249,11 +251,12 @@ class MainWindow(QMainWindow):
             scrollArea.setWidget(new_widget)
             scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             scrollArea.setWidgetResizable(True)
-            #scrollArea.setStyleSheet(scrollArea_style)
 
             layout = FlowLayout()
             new_widget.setLayout(layout)
             layout.setSpacing(10)
+
+            self.task_overviews_per_month[self.month-1] = scrollArea
 
             sql_end_date = "{}-{}-01".format(self.year, self.month)
             sql_start_date = "{}-{}-31".format(self.year, self.month)
@@ -267,8 +270,6 @@ class MainWindow(QMainWindow):
                 task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date.date(), task[6], self.month)
                 self.widget_task_ids[task_widget] = task[0]
                 layout.addWidget(task_widget)
-
-            self.task_overviews_per_month[self.month-1] = scrollArea
     
     def compute_tasks_count_quantiles(self):
         res = self.db_joint.sql_query("SELECT date, count(task_id) FROM data_joint WHERE check_number != 0 GROUP BY date")

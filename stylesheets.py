@@ -62,6 +62,50 @@ check_bar_second_click_blue = """
                     background-color: #0890C1;
                     """
 
+scrollArea_style = """
+                    QScrollArea {
+						background: #ffffff;
+						border: 0px solid;
+                    }
+
+                    QScrollBar::vertical {
+                        width: 8px;
+                        margin: 0px 0 0px 0;
+						background: transparent;
+                      }
+
+                      QScrollBar::handle:vertical {
+                        min-height: 10px;
+						background: #dde6f6;
+						border-radius: 4px;
+                      }
+
+                      QScrollBar::add-line:vertical {
+                        background: transparent;
+                        height: 0px; 
+                        subcontrol-position: bottom;
+                        subcontrol-origin: margin;
+                      }
+
+                      QScrollBar::sub-line:vertical {
+                        background: transparent;
+                        height: 0px; 
+                        subcontrol-position: top;
+                        subcontrol-origin: margin;
+                      }
+
+                      QScrollBar::up-arrow:vertical { 
+						background: transparent;
+						height: 0px; 
+                      }
+
+                      QScrollBar::down-arrow:vertical {
+						background: transparent;                        
+						height: 0px; 
+                        width: 40px;
+                      }
+                      """
+
 colors = {"red": "#E26457", "yellow": "#E2B757", "blue": "#465999", "green": "#42AB59"}
 
 blue_color_scheme = {"main": "#465999", "highlight": "#6f80b8", "shadow": "#2f4385", "dark-shadow": "#1c2a57"}
