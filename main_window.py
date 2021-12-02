@@ -17,6 +17,7 @@ from flowlayout import FlowLayout
 
 class MainWindow(QMainWindow):
     widget_task_ids = {}
+    task_overviews_per_month = [None for i in range(12)]
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -25,8 +26,8 @@ class MainWindow(QMainWindow):
         self.year = datetime.datetime.today().year
         self.month = datetime.datetime.today().month
 
-        self.resize(QtCore.QSize(800, 600))
-        self.setMinimumSize(QtCore.QSize(800, 600))
+        self.resize(QtCore.QSize(900, 600))
+        self.setMinimumSize(QtCore.QSize(900, 600))
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -49,10 +50,6 @@ class MainWindow(QMainWindow):
         # flow layouts need to be initialized by code
         layout = FlowLayout()
         widget = self.ui.tasks_todo_widget
-        widget.setLayout(layout)
-
-        layout = FlowLayout()
-        widget = self.ui.tasks_widget
         widget.setLayout(layout)
 
     def init_effects(self):
@@ -242,21 +239,36 @@ class MainWindow(QMainWindow):
         self.change_page(self.ui.page_show_tasks)
 
     def init_tasks(self):
-        layout = self.ui.tasks_widget.layout()
-        layout.setSpacing(10)
+        scrollArea = self.task_overviews_per_month[self.month-1]
+        if scrollArea:
+            scrollArea.setVisible(True)
+        else:
+            scrollArea = QScrollArea()
+            self.ui.task_overview.layout().addWidget(scrollArea)
+            new_widget = QWidget()
+            scrollArea.setWidget(new_widget)
+            scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            scrollArea.setWidgetResizable(True)
+            #scrollArea.setStyleSheet(scrollArea_style)
 
-        sql_end_date = "{}-{}-01".format(self.year, self.month)
-        sql_start_date = "{}-{}-31".format(self.year, self.month)
-        tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE startDate <= strftime('%Y-%m-%d', '{}') and endDate >= strftime('%Y-%m-%d', '{}')".format(sql_start_date, sql_end_date))
-        if not tasks:
-            return
-        tasks.sort(key=lambda x: x[2], reverse=True)
+            layout = FlowLayout()
+            new_widget.setLayout(layout)
+            layout.setSpacing(10)
 
-        for task in tasks:
-            task_start_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
-            task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date.date(), task[6], self.month)
-            self.widget_task_ids[task_widget] = task[0]
-            layout.addWidget(task_widget)
+            sql_end_date = "{}-{}-01".format(self.year, self.month)
+            sql_start_date = "{}-{}-31".format(self.year, self.month)
+            tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE startDate <= strftime('%Y-%m-%d', '{}') and endDate >= strftime('%Y-%m-%d', '{}')".format(sql_start_date, sql_end_date))
+            if not tasks:
+                return
+            tasks.sort(key=lambda x: x[2], reverse=True)
+
+            for task in tasks:
+                task_start_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
+                task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date.date(), task[6], self.month)
+                self.widget_task_ids[task_widget] = task[0]
+                layout.addWidget(task_widget)
+
+            self.task_overviews_per_month[self.month-1] = scrollArea
     
     def compute_tasks_count_quantiles(self):
         res = self.db_joint.sql_query("SELECT date, count(task_id) FROM data_joint WHERE check_number != 0 GROUP BY date")
@@ -279,6 +291,8 @@ class MainWindow(QMainWindow):
         self.change_page(self.ui.page_statistics)
 
     def change_tasks_month(self, i):
+        widget = self.task_overviews_per_month[self.month-1]
+        widget.setVisible(False)
         self.month = (self.month + i) % 12
         if self.month == 0:
             self.month = 12
@@ -289,7 +303,7 @@ class MainWindow(QMainWindow):
         month_name = calendar.month_abbr[self.month]
         self.ui.month_label.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
-        self.update_task_overview()
+        self.init_tasks()
 
     def change_calendar_year(self, i):
         # change year if updated year is not in the future
@@ -299,13 +313,6 @@ class MainWindow(QMainWindow):
         self.ui.year_label.setText("{}".format(self.year))
         # update shown calendar using the updated year
         self.update_calendar_statistics()
-
-    def update_task_overview(self):
-        # delete old tasks
-        for i in range(self.ui.tasks_widget.layout().count()):
-            self.ui.tasks_widget.layout().itemAt(i).widget().deleteLater()
-        # create new ones
-        self.init_tasks()
 
     def update_calendar_statistics(self):
         # delete old calendar

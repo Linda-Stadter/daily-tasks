@@ -429,55 +429,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.addWidget(self.button_next_month)
         self.horizontalLayout_5.addWidget(self.widget_5)
         self.verticalLayout_4.addLayout(self.horizontalLayout_5)
-        self.scrollArea = QtWidgets.QScrollArea(self.task_overview)
-        self.scrollArea.setStyleSheet("QScrollArea {\n"
-"                        background: #ffffff;\n"
-"                        border: 0px solid;\n"
-"}\n"
-"\n"
-"QScrollBar::vertical {\n"
-"                        width: 8px;\n"
-"                        margin: 0px 0 0px 0;\n"
-"                        background: transparent;\n"
-"                      }\n"
-"\n"
-"                      QScrollBar::handle:vertical {\n"
-"                        min-height: 10px;\n"
-"                        background: #dde6f6;\n"
-"                        border-radius: 4px;\n"
-"                      }\n"
-"\n"
-"                      QScrollBar::add-line:vertical {\n"
-"                        background: transparent;\n"
-"                        height: 0px; \n"
-"                        subcontrol-position: bottom;\n"
-"                        subcontrol-origin: margin;\n"
-"                      }\n"
-"\n"
-"                      QScrollBar::sub-line:vertical {\n"
-"                        background: transparent;\n"
-"                        height: 0px; \n"
-"                        subcontrol-position: top;\n"
-"                        subcontrol-origin: margin;\n"
-"                      }\n"
-"\n"
-"                      QScrollBar::up-arrow:vertical { \n"
-"                        background: transparent;\n"
-"                        height: 0px; \n"
-"                      }\n"
-"\n"
-"                      QScrollBar::down-arrow:vertical {\n"
-"                        background: transparent;                        \n"
-"                        height: 0px; \n"
-"                        width: 40px;\n"
-"                      }")
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        self.tasks_widget = QtWidgets.QWidget()
-        self.tasks_widget.setGeometry(QtCore.QRect(0, 0, 725, 379))
-        self.tasks_widget.setObjectName("tasks_widget")
-        self.scrollArea.setWidget(self.tasks_widget)
-        self.verticalLayout_4.addWidget(self.scrollArea)
         self.verticalLayout_6.addWidget(self.task_overview)
         self.Pages_Widget.addWidget(self.page_show_tasks)
         self.page_add_task = QtWidgets.QWidget()
