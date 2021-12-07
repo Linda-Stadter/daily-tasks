@@ -242,6 +242,10 @@ class MainWindow(QMainWindow):
     def init_tasks(self):
         scrollArea = self.task_overviews_per_month[self.month-1]
 
+        # show month name
+        month_name = calendar.month_abbr[self.month]
+        self.ui.month_label.setText("{} {}".format(month_name, str(self.year)[-2:]))
+
         if scrollArea:
             scrollArea.setVisible(True)
         else:
@@ -301,8 +305,6 @@ class MainWindow(QMainWindow):
                 self.year += i
         if self.month == 1 and i > 0:
             self.year += i
-        month_name = calendar.month_abbr[self.month]
-        self.ui.month_label.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
         self.init_tasks()
 
