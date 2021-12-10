@@ -15,6 +15,9 @@ from sql_functions import *
 from uiFunctions import *
 from flowlayout import FlowLayout
 
+from matplotlib.patches import FancyBboxPatch
+from mlpcanvas import * 
+
 class MainWindow(QMainWindow):
     widget_task_ids = {}
     task_overviews_per_month = [None for i in range(12)]
@@ -41,6 +44,7 @@ class MainWindow(QMainWindow):
         self.init_flow_layouts()
         self.init_tasks_todo()
         self.init_tasks()
+        self.init_month_statistics()
         self.init_effects()
         self.connect_buttons()
 
@@ -59,6 +63,7 @@ class MainWindow(QMainWindow):
         add_shadow_effect(self.ui.history)
         add_shadow_effect(self.ui.tasks_todo)
         add_shadow_effect(self.ui.add_task_widget)
+        add_shadow_effect(self.ui.widget_2)
         add_shadow_effect(self.ui.effect_test_2, 5)
 
     def connect_buttons(self):
@@ -283,6 +288,41 @@ class MainWindow(QMainWindow):
         quantiles = np.quantile(list(tasks_per_day.values()), [0.25, 0.5, 0.75, 1.0])
 
         return quantiles, tasks_per_day
+
+    def init_month_statistics(self):
+        res = self.db_joint.sql_query("SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) FROM data_joint WHERE check_number != 0 GROUP BY strftime(\"%m-%Y\", date)")
+        # TODO make year controllable
+        months = ['01-2021', '02-2021', '03-2021', '04-2021', '05-2021', '06-2021', '07-2021', '08-2021', '09-2021', '10-2021', '11-2021', '12-2021']
+        y = []
+        i = 0
+        for data in res:
+            while data[0] != months[i]:
+                y.append(0)
+                i += 1
+            y.append(data[1])
+            i += 1
+        y += [0] * (len(months) - 1 - i)
+
+        sc = MplCanvas(self, width=5, height=4, dpi=100)
+        x = [calendar.month_abbr[i] for i in range(1,13)]
+
+        sc.axes.bar(x[self.month-6:], y[self.month-6:], color="#dde6f6")
+        new_patches = []
+        for patch in reversed(sc.axes.patches):
+            bb = patch.get_bbox()
+            color=patch.get_facecolor()
+            p_bbox = FancyBboxPatch((bb.xmin, bb.ymin), abs(bb.width), abs(bb.height), 
+                                    boxstyle="round,pad=0.0040,rounding_size=0.15", 
+                                    ec="none", fc=color, mutation_aspect=10)
+            patch.remove()
+            if bb.height == 0:
+                new_patches.append(patch)
+            else:
+                new_patches.append(p_bbox)
+        for patch in new_patches:
+            sc.axes.add_patch(patch)
+
+        self.ui.monthsplot.layout().insertWidget(0, sc)
 
     def show_statistics(self):
         if self.ui.calendar.count() < 1:
