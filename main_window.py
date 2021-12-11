@@ -76,6 +76,8 @@ class MainWindow(QMainWindow):
         self.ui.button_next_year.clicked.connect(lambda: self.change_calendar_year(+1))
         self.ui.button_last_month.clicked.connect(lambda: self.change_tasks_month(-1))
         self.ui.button_next_month.clicked.connect(lambda: self.change_tasks_month(+1))
+        self.ui.button_last_month_2.clicked.connect(lambda: self.change_tasks_month(-1))
+        self.ui.button_next_month_2.clicked.connect(lambda: self.change_tasks_month(+1))
     
     def custom_context_menu(self, event):
         contextMenu = QMenu(self)
@@ -290,6 +292,9 @@ class MainWindow(QMainWindow):
         return quantiles, tasks_per_day
 
     def init_month_statistics(self):
+        month_name = calendar.month_abbr[self.month]
+        self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
+
         res = self.db_joint.sql_query("SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) FROM data_joint WHERE check_number != 0 GROUP BY strftime(\"%m-%Y\", date)")
         # TODO make year controllable
         months = ['01-2021', '02-2021', '03-2021', '04-2021', '05-2021', '06-2021', '07-2021', '08-2021', '09-2021', '10-2021', '11-2021', '12-2021']
@@ -305,8 +310,8 @@ class MainWindow(QMainWindow):
 
         sc = MplCanvas(self, width=5, height=4, dpi=100)
         x = [calendar.month_abbr[i] for i in range(1,13)]
-
-        sc.axes.bar(x[self.month-6:], y[self.month-6:], color="#dde6f6")
+        # TODO show last 6 months
+        sc.axes.bar(x[:self.month], y[:self.month], color="#dde6f6")
         new_patches = []
         for patch in reversed(sc.axes.patches):
             bb = patch.get_bbox()
@@ -322,6 +327,7 @@ class MainWindow(QMainWindow):
         for patch in new_patches:
             sc.axes.add_patch(patch)
 
+        self.ui.monthsplot.layout().itemAt(0).widget().deleteLater()
         self.ui.monthsplot.layout().insertWidget(0, sc)
 
     def show_statistics(self):
@@ -347,6 +353,7 @@ class MainWindow(QMainWindow):
             self.year += i
 
         self.init_tasks()
+        self.init_month_statistics()
 
     def change_calendar_year(self, i):
         # change year if updated year is not in the future
