@@ -295,23 +295,32 @@ class MainWindow(QMainWindow):
         month_name = calendar.month_abbr[self.month]
         self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
-        res = self.db_joint.sql_query("SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) FROM data_joint WHERE check_number != 0 GROUP BY strftime(\"%m-%Y\", date)")
-        # TODO make year controllable
-        months = ['01-2021', '02-2021', '03-2021', '04-2021', '05-2021', '06-2021', '07-2021', '08-2021', '09-2021', '10-2021', '11-2021', '12-2021']
+        end_date = datetime.datetime(self.year + (self.month + 1)//12, (self.month + 1) % 12 + 1, 1)
+        start_date =  datetime.datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
+
+        res = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
+                                        FROM data_joint 
+                                        WHERE check_number != 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                        GROUP BY strftime(\"%m-%Y\", date)""".format(start_date, end_date))
+
+        x =  []
         y = []
-        i = 0
-        for data in res:
-            while data[0] != months[i]:
+        y_ptr = 0
+        for i in reversed(range(1,7)):
+            date = datetime.datetime(self.year + (self.month - i)//12, (self.month - i) % 12 + 1, 1)
+            x.append(calendar.month_abbr[date.month])
+            date = date.strftime('%m-%Y')
+
+            if y_ptr < len(res) and res[y_ptr][0] == date:
+                y.append(res[y_ptr][1])
+                y_ptr += 1
+            else:
                 y.append(0)
-                i += 1
-            y.append(data[1])
-            i += 1
-        y += [0] * (len(months) - 1 - i)
 
         sc = MplCanvas(self, width=5, height=4, dpi=100)
-        x = [calendar.month_abbr[i] for i in range(1,13)]
-        # TODO show last 6 months
-        sc.axes.bar(x[:self.month], y[:self.month], color="#dde6f6")
+        sc.axes.bar(x, y, color="#dde6f6")
+        sc.axes.set_ylim(0, max(y)+1)
+
         new_patches = []
         for patch in reversed(sc.axes.patches):
             bb = patch.get_bbox()
