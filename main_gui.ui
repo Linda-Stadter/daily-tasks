@@ -465,7 +465,7 @@ background-color: #e2b757;
           <item>
            <widget class="QStackedWidget" name="Pages_Widget">
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_show_tasks">
              <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -501,7 +501,7 @@ border-radius: 10px;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_10">
                  <property name="spacing">
-                  <number>12</number>
+                  <number>15</number>
                  </property>
                  <property name="sizeConstraint">
                   <enum>QLayout::SetNoConstraint</enum>
@@ -680,6 +680,21 @@ border-radius: 10px;</string>
 border-radius: 10px;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <property name="spacing">
+                  <number>15</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>12</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_5">
                    <item>
@@ -1026,7 +1041,7 @@ border-radius: 10px;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_18">
                  <property name="spacing">
-                  <number>12</number>
+                  <number>15</number>
                  </property>
                  <property name="leftMargin">
                   <number>12</number>
@@ -1688,6 +1703,21 @@ border-radius: 10px;</string>
 border-radius: 10px;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <property name="spacing">
+                  <number>15</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>12</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>12</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_6">
                    <item>

@@ -31,13 +31,13 @@ class MainWindow(QMainWindow):
 
         self.resize(QtCore.QSize(850, 600))
         self.setMinimumSize(QtCore.QSize(850, 600))
+        self.setStyleSheet(scrollArea_style)
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.init_ui()
         self.init_menu_width = self.ui.frame_left_menu.minimumWidth()
 
-        self.setStyleSheet(scrollArea_style)
         self.show()
 
     def init_ui(self):
@@ -247,6 +247,7 @@ class MainWindow(QMainWindow):
         self.change_page(self.ui.page_show_tasks)
 
     def init_tasks(self):
+        self.setStyleSheet(scrollArea_style)
         scrollArea = self.task_overviews_per_month[self.month-1]
 
         # show month name
