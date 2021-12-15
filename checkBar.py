@@ -28,6 +28,7 @@ class CheckBar(QtWidgets.QWidget):
         # get data from database
         self.read_color()
         self.get_start_date()
+        self.update_database()
 
 
     def paintEvent(self, e: QPaintEvent):

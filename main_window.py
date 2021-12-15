@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.resize(QtCore.QSize(850, 600))
         self.setMinimumSize(QtCore.QSize(850, 600))
         self.setStyleSheet(scrollArea_style)
-        
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.init_ui()
@@ -292,6 +292,25 @@ class MainWindow(QMainWindow):
 
         return quantiles, tasks_per_day
 
+    def compare_accomplished_tasks_statistics(self):
+        this_month_end = datetime.datetime.now()
+        last_month_begin = datetime.datetime(this_month_end.year + (this_month_end.month - 1)//12, (this_month_end.month - 1) % 12, 1)
+
+        accomplished = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
+                                FROM data_joint 
+                                WHERE check_number > 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
+
+        total = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
+                                FROM data_joint 
+                                WHERE check_number != -1 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
+
+        percentage_last_month = accomplished[0][1]/total[0][1]
+        percentage_this_month = accomplished[1][1]/total[1][1]
+
+        accomplished_dif = percentage_this_month - percentage_last_month 
+
     def init_month_statistics(self):
         month_name = calendar.month_abbr[self.month]
         self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
@@ -301,7 +320,7 @@ class MainWindow(QMainWindow):
 
         res = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                         FROM data_joint 
-                                        WHERE check_number != 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                        WHERE check_number > 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
                                         GROUP BY strftime(\"%m-%Y\", date)""".format(start_date, end_date))
 
         x =  []
