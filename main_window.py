@@ -309,7 +309,9 @@ class MainWindow(QMainWindow):
         percentage_last_month = accomplished[0][1]/total[0][1]
         percentage_this_month = accomplished[1][1]/total[1][1]
 
-        accomplished_dif = percentage_this_month - percentage_last_month 
+        accomplished_dif = percentage_this_month - percentage_last_month
+
+        interpret_accomplished_tasks_difference(accomplished_dif/percentage_last_month)
 
     def init_month_statistics(self):
         month_name = calendar.month_abbr[self.month]
