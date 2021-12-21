@@ -4,8 +4,8 @@ from matplotlib.figure import Figure
 class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent=None, width=4, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
         self.axes.spines['top'].set_visible(False)
         self.axes.spines['right'].set_visible(False)
         self.axes.spines['left'].set_visible(False)
@@ -13,6 +13,6 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_axisbelow(True)
         self.axes.yaxis.grid(True, color='#EEEEEE')
         self.axes.xaxis.grid(False)
-        fig.tight_layout()
+        self.fig.tight_layout()
     
-        super(MplCanvas, self).__init__(fig)
+        super(MplCanvas, self).__init__(self.fig)

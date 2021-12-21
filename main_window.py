@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         self.init_month_statistics()
         self.init_effects()
         self.connect_buttons()
+        self.compare_accomplished_tasks_statistics()
 
         self.ui.Pages_Widget.setCurrentWidget(self.ui.page_show_tasks)
         self.ui.day_field.setValidator(QtGui.QIntValidator())
@@ -64,6 +65,7 @@ class MainWindow(QMainWindow):
         add_shadow_effect(self.ui.tasks_todo)
         add_shadow_effect(self.ui.add_task_widget)
         add_shadow_effect(self.ui.widget_2)
+        add_shadow_effect(self.ui.highlights_widget)
         add_shadow_effect(self.ui.effect_test_2, 5)
 
     def connect_buttons(self):
@@ -311,7 +313,31 @@ class MainWindow(QMainWindow):
 
         accomplished_dif = percentage_this_month - percentage_last_month
 
-        interpret_accomplished_tasks_difference(accomplished_dif/percentage_last_month)
+        text = interpret_accomplished_tasks_difference(accomplished_dif/percentage_last_month)
+        self.ui.textBrowser.setText(text)
+
+        y = [percentage_last_month * 100, percentage_this_month * 100]
+        x = [calendar.month_abbr[last_month_begin.month], calendar.month_abbr[this_month_end.month]]
+        sc = MplCanvas(self, width=4, height=1.5, dpi=100)
+        sc.axes.barh(x, y, height=0.5, color="#dde6f6")
+        sc.axes.xaxis.set_visible(False)
+        # new_patches = []
+        # for patch in reversed(sc.axes.patches):
+        #     bb = patch.get_bbox()
+        #     color=patch.get_facecolor()
+        #     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin), abs(bb.width), abs(bb.height), 
+        #                             boxstyle="round,pad=0.0040,rounding_size=0.15", 
+        #                             ec="none", fc=color, mutation_aspect=10)
+        #     patch.remove()
+        #     if bb.height == 0:
+        #         new_patches.append(patch)
+        #     else:
+        #         new_patches.append(p_bbox)
+        # for patch in new_patches:
+        #     sc.axes.add_patch(patch)
+        sc.fig.tight_layout()
+        self.ui.widget_8.layout().insertWidget(0, sc)
+
 
     def init_month_statistics(self):
         month_name = calendar.month_abbr[self.month]
