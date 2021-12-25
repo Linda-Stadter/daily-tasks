@@ -318,16 +318,17 @@ class MainWindow(QMainWindow):
 
         y = [percentage_last_month * 100, percentage_this_month * 100]
         x = [calendar.month_abbr[last_month_begin.month], calendar.month_abbr[this_month_end.month]]
-        sc = MplCanvas(self, width=4, height=1.5, dpi=100)
-        sc.axes.barh(x, y, height=0.5, color="#dde6f6")
+        sc = MplCanvas(width=4, height=3, dpi=100)
+        sc.axes.barh(x, y, height=0.4, color="#dde6f6")
         sc.axes.xaxis.set_visible(False)
+
         # new_patches = []
         # for patch in reversed(sc.axes.patches):
         #     bb = patch.get_bbox()
         #     color=patch.get_facecolor()
         #     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin), abs(bb.width), abs(bb.height), 
-        #                             boxstyle="round,pad=0.0040,rounding_size=0.15", 
-        #                             ec="none", fc=color, mutation_aspect=10)
+        #                             boxstyle="round,pad=0.0040,rounding_size=0.10", 
+        #                             ec="none", fc=color, mutation_aspect=5)
         #     patch.remove()
         #     if bb.height == 0:
         #         new_patches.append(patch)
@@ -335,7 +336,9 @@ class MainWindow(QMainWindow):
         #         new_patches.append(p_bbox)
         # for patch in new_patches:
         #     sc.axes.add_patch(patch)
-        sc.fig.tight_layout()
+        # sc.fig.tight_layout()
+
+        sc.setFixedHeight(100)
         self.ui.widget_8.layout().insertWidget(0, sc)
 
 
@@ -344,7 +347,7 @@ class MainWindow(QMainWindow):
         self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
         end_date = datetime.datetime(self.year + (self.month + 1)//12, (self.month + 1) % 12 + 1, 1)
-        start_date =  datetime.datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
+        start_date = datetime.datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
 
         res = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                         FROM data_joint 
@@ -365,16 +368,16 @@ class MainWindow(QMainWindow):
             else:
                 y.append(0)
 
-        sc = MplCanvas(self, width=5, height=4, dpi=100)
-        sc.axes.bar(x, y, color="#dde6f6")
-        sc.axes.set_ylim(0, max(y)+1)
-
+        sc = MplCanvas(width=5, height=4, dpi=100)
+        sc.axes.bar(x, y, width=0.8, color="#dde6f6")
+        max_y_lim = 10 + max(y)//10 * 10
+        sc.axes.set_ylim(0, max_y_lim)
         new_patches = []
         for patch in reversed(sc.axes.patches):
             bb = patch.get_bbox()
             color=patch.get_facecolor()
             p_bbox = FancyBboxPatch((bb.xmin, bb.ymin), abs(bb.width), abs(bb.height), 
-                                    boxstyle="round,pad=0.0040,rounding_size=0.15", 
+                                    boxstyle="round,pad=0.0040,rounding_size={}".format(0.002*max_y_lim), 
                                     ec="none", fc=color, mutation_aspect=10)
             patch.remove()
             if bb.height == 0:
@@ -383,7 +386,8 @@ class MainWindow(QMainWindow):
                 new_patches.append(p_bbox)
         for patch in new_patches:
             sc.axes.add_patch(patch)
-
+        sc.fig.tight_layout()
+        sc.setFixedHeight(300)
         self.ui.monthsplot.layout().itemAt(0).widget().deleteLater()
         self.ui.monthsplot.layout().insertWidget(0, sc)
 
