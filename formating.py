@@ -1,7 +1,8 @@
 import datetime
 
 def convert_time(time): 
-    time = datetime.datetime.strptime(time, "%H:%M")
+    if type(time) == str:
+        time = datetime.datetime.strptime(time, "%H:%M")
     if time.hour == 0:
         return "{} min".format(time.minute)
     if time.minute == 0:

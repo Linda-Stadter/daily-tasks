@@ -243,10 +243,19 @@ class MainWindow(QMainWindow):
         task_id = self.db_task.insert_task(name_input, days_input, duration_input, start_date, rnd_color)
 
         # insert new task into ui
-        self.update_task_overview()
+        self.update_task_overview(task_id, name_input, days_input, duration_input, start_date, rnd_color)
 
         self.update_tasks_todo(task_id, 0)
         self.change_page(self.ui.page_show_tasks)
+
+    def update_task_overview(self, task_id, name, days, duration, start, color):
+        # get current scrollArea
+        scrollArea = self.task_overviews_per_month[self.month-1]
+
+        # add new task to task overview
+        task_widget = create_task_widget(self, task_id, name, days, duration, start, color, self.month)
+        self.widget_task_ids[task_widget] = task_id
+        scrollArea.widget().layout().addWidget(task_widget)
 
     def init_tasks(self):
         self.setStyleSheet(scrollArea_style)
@@ -280,8 +289,8 @@ class MainWindow(QMainWindow):
             tasks.sort(key=lambda x: x[2], reverse=True)
 
             for task in tasks:
-                task_start_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
-                task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_start_date.date(), task[6], self.month)
+                task_end_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
+                task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_end_date.date(), task[6], self.month)
                 self.widget_task_ids[task_widget] = task[0]
                 layout.addWidget(task_widget)
     
