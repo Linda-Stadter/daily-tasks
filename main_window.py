@@ -137,12 +137,18 @@ class MainWindow(QMainWindow):
         task = self.db_task.sql_query("SELECT * FROM tasks WHERE id = {}".format(id))
         task = task[0]
 
-        new_end_date = datetime.date.today()
-        new_days = (datetime.datetime.today() - datetime.datetime.strptime(task[4],  "%Y-%m-%d")).days
+        new_end_date = datetime.datetime.now() - datetime.timedelta(days=1)
+        new_days = (new_end_date - datetime.datetime.strptime(task[4],  "%Y-%m-%d")).days
+        # convert to datetime.date
+        new_end_date = new_end_date.date()
         self.db_task.update_row(id, task[1], new_days, task[3], task[4], new_end_date, task[6])
 
+        # delte task from task todo bar
         self.update_tasks_todo(id, 1)
+        # delete task from task overview
         sender.deleteLater()
+        # insert task with updated parameters
+        self.update_task_overview(id, task[1], new_days, task[3], new_end_date, task[6])
 
     def change_page(self, page):
         self.ui.Pages_Widget.setCurrentWidget(page)
@@ -216,7 +222,8 @@ class MainWindow(QMainWindow):
 
         if checked != 0:
             label = self.ui.tasks_todo_widget.findChild(QLabel, name)
-            label.deleteLater()
+            if label:
+                label.deleteLater()
         else:
             layout = self.ui.tasks_todo_widget.layout()
             color = res[0][1]
