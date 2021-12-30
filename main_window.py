@@ -1,5 +1,5 @@
 import sys
-import datetime
+from datetime import datetime, date
 import calendar
 import numpy as np
 
@@ -26,8 +26,8 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.db_task = SQLTaskConnection("task_data")
         self.db_joint = SQLJointConnection("data_joint")
-        self.year = datetime.datetime.today().year
-        self.month = datetime.datetime.today().month
+        self.year = datetime.today().year
+        self.month = datetime.today().month
 
         self.resize(QtCore.QSize(850, 600))
         self.setMinimumSize(QtCore.QSize(850, 600))
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.init_ui()
         self.init_menu_width = self.ui.frame_left_menu.minimumWidth()
-
+        
         self.show()
 
     def init_ui(self):
@@ -69,7 +69,6 @@ class MainWindow(QMainWindow):
         add_shadow_effect(self.ui.effect_test_2, 5)
 
     def connect_buttons(self):
-        self.ui.Btn_Toggle.clicked.connect(lambda: self.toggle_menu(130))
         self.ui.Btn_Menu_2.clicked.connect(lambda: self.change_page(self.ui.page_add_task))
         self.ui.Btn_Menu_1.clicked.connect(lambda: self.change_page(self.ui.page_show_tasks))
         self.ui.Btn_Menu_3.clicked.connect(self.show_statistics)
@@ -137,9 +136,9 @@ class MainWindow(QMainWindow):
         task = self.db_task.sql_query("SELECT * FROM tasks WHERE id = {}".format(id))
         task = task[0]
 
-        new_end_date = datetime.datetime.now() - datetime.timedelta(days=1)
-        new_days = (new_end_date - datetime.datetime.strptime(task[4],  "%Y-%m-%d")).days
-        # convert to datetime.date
+        new_end_date = datetime.now() - datetime.timedelta(days=1)
+        new_days = (new_end_date - datetime.strptime(task[4],  "%Y-%m-%d")).days
+        # convert to date
         new_end_date = new_end_date.date()
         self.db_task.update_row(id, task[1], new_days, task[3], task[4], new_end_date, task[6])
 
@@ -185,9 +184,9 @@ class MainWindow(QMainWindow):
         oldest_start_date = current_tasks[0][4]
         
         # differences[i] states how many days task i is younger than the oldest relevant task
-        differences = {task[0]: (datetime.datetime.strptime(task[4],  "%Y-%m-%d") - datetime.datetime.strptime(oldest_start_date,  "%Y-%m-%d")).days for task in current_tasks}
+        differences = {task[0]: (datetime.strptime(task[4],  "%Y-%m-%d") - datetime.strptime(oldest_start_date,  "%Y-%m-%d")).days for task in current_tasks}
         # id of check bar for today (with respect to the oldest current task)
-        today_day_id = (datetime.datetime.today() - datetime.datetime.strptime(oldest_start_date,  "%Y-%m-%d")).days
+        today_day_id = (datetime.today() - datetime.strptime(oldest_start_date,  "%Y-%m-%d")).days
         current_task_ids = set([x[0] for x in current_tasks])
 
         query = format_list_sql_query("SELECT * FROM data_joint WHERE check_number != 0 and task_id", current_task_ids)
@@ -245,7 +244,7 @@ class MainWindow(QMainWindow):
         self.ui.day_field.clear()
         self.ui.time_field.clear()
 
-        start_date = datetime.date.today()
+        start_date = date.today()
         rnd_color = get_random_color()
         task_id = self.db_task.insert_task(name_input, days_input, duration_input, start_date, rnd_color)
 
@@ -296,7 +295,7 @@ class MainWindow(QMainWindow):
             tasks.sort(key=lambda x: x[2], reverse=True)
 
             for task in tasks:
-                task_end_date = datetime.datetime.strptime(task[4],  "%Y-%m-%d") 
+                task_end_date = datetime.strptime(task[4],  "%Y-%m-%d") 
                 task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_end_date.date(), task[6], self.month)
                 self.widget_task_ids[task_widget] = task[0]
                 layout.addWidget(task_widget)
@@ -311,8 +310,9 @@ class MainWindow(QMainWindow):
         return quantiles, tasks_per_day
 
     def compare_accomplished_tasks_statistics(self):
-        this_month_end = datetime.datetime.now()
-        last_month_begin = datetime.datetime(this_month_end.year + (this_month_end.month - 1)//12, (this_month_end.month - 1) % 12, 1)
+        this_month_end = datetime.now()
+        last_month, last_year = add_delta_month(this_month_end.month, this_month_end.year, -1)
+        last_month_begin = datetime(last_year, last_month, 1)
 
         accomplished = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                 FROM data_joint 
@@ -362,8 +362,9 @@ class MainWindow(QMainWindow):
         month_name = calendar.month_abbr[self.month]
         self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
-        end_date = datetime.datetime(self.year + (self.month + 1)//12, (self.month + 1) % 12 + 1, 1)
-        start_date = datetime.datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
+        date = datetime(self.year, self.month, 1)
+        end_date = datetime(self.year + (self.month + 1)//12, (self.month + 1) % 12 + 1, 1)
+        start_date = datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
 
         res = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                         FROM data_joint 
@@ -374,7 +375,7 @@ class MainWindow(QMainWindow):
         y = []
         y_ptr = 0
         for i in reversed(range(1,7)):
-            date = datetime.datetime(self.year + (self.month - i)//12, (self.month - i) % 12 + 1, 1)
+            date = datetime(self.year + (self.month - i)//12, (self.month - i) % 12 + 1, 1)
             x.append(calendar.month_abbr[date.month])
             date = date.strftime('%m-%Y')
 
@@ -421,20 +422,15 @@ class MainWindow(QMainWindow):
     def change_tasks_month(self, i):
         widget = self.task_overviews_per_month[self.month-1]
         widget.setVisible(False)
-        self.month = (self.month + i) % 12
-        if self.month == 0:
-            self.month = 12
-            if i < 0:
-                self.year += i
-        if self.month == 1 and i > 0:
-            self.year += i
+
+        self.month, self.year = add_delta_month(self.month, self.year, i)
 
         self.init_tasks()
         self.init_month_statistics()
 
     def change_calendar_year(self, i):
         # change year if updated year is not in the future
-        current_year = datetime.datetime.today().year
+        current_year = datetime.today().year
         year = self.year + i
         self.year = year if year <= current_year else current_year
         self.ui.year_label.setText("{}".format(self.year))
@@ -468,10 +464,10 @@ class MainWindow(QMainWindow):
                     # do not count rows for all other 0 days
                     elif day == 0:
                         continue
-                    date = datetime.date(self.year, month, day)
+                    current_date = date(self.year, month, day)
                     color = 0
                     try: 
-                        count = tasks_per_day[str(date)]
+                        count = tasks_per_day[str(current_date)]
                         color = 1
                         for i in range(len(quantiles)-1, 0, -1):
                             if count >= quantiles[i]:
@@ -480,8 +476,8 @@ class MainWindow(QMainWindow):
                     except:
                         color = 0
 
-                    date = datetime.date(self.year, month, day)
-                    day_widget = create_calendar_day_widget(self, date, count, color)
+                    current_date = date(self.year, month, day)
+                    day_widget = create_calendar_day_widget(self, current_date, count, color)
                     calendar_grid.addWidget(day_widget, d%columns, d//columns)
 
                     d += 1

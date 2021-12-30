@@ -22,3 +22,14 @@ def interpret_accomplished_tasks_difference(dif):
     else:
         comparison = "less" if dif < 0 else "more"
         return "This month you complete {}% {} assigned tasks than last month.".format(round(abs(dif)*100), comparison)
+
+def add_delta_month(month, year, delta_months):
+    month = (month + delta_months) % 12
+    if month == 0:
+        month = 12
+        if delta_months < 0:
+            year -= 1
+    if month == 1 and delta_months > 0:
+        year += 1
+    
+    return month, year
