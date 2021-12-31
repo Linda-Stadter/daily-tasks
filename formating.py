@@ -1,8 +1,9 @@
 import datetime
+from datetime import datetime
 
 def convert_time(time): 
     if type(time) == str:
-        time = datetime.datetime.strptime(time, "%H:%M")
+        time = datetime.strptime(time, "%H:%M")
     if time.hour == 0:
         return "{} min".format(time.minute)
     if time.minute == 0:
@@ -23,7 +24,7 @@ def interpret_accomplished_tasks_difference(dif):
         comparison = "less" if dif < 0 else "more"
         return "This month you complete {}% {} assigned tasks than last month.".format(round(abs(dif)*100), comparison)
 
-def add_delta_month(month, year, delta_months):
+def add_delta_month(year, month, delta_months):
     month = (month + delta_months) % 12
     if month == 0:
         month = 12
@@ -32,4 +33,8 @@ def add_delta_month(month, year, delta_months):
     if month == 1 and delta_months > 0:
         year += 1
     
-    return month, year
+    return year, month
+
+def add_delta_month_datetime(year, month, day, delta_months):
+    year, month = add_delta_month(year, month, delta_months)
+    return datetime(year, month, day)

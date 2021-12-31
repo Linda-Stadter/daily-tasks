@@ -107,7 +107,7 @@ def create_task_widget(window, task_id, name, days, duration, start_date, color,
     checkbox_widget.setLayout(checkbox_grid)
     checkbox_rows = 7
 
-    today = datetime.datetime.today()
+    today = datetime.today()
 
     d = 0
     calendar_object = calendar.Calendar()

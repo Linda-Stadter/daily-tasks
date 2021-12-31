@@ -1,5 +1,4 @@
 import sys
-from datetime import datetime, date
 import calendar
 import numpy as np
 
@@ -17,6 +16,7 @@ from flowlayout import FlowLayout
 
 from matplotlib.patches import FancyBboxPatch
 from mlpcanvas import * 
+from datetime import datetime, date
 
 class MainWindow(QMainWindow):
     widget_task_ids = {}
@@ -311,8 +311,7 @@ class MainWindow(QMainWindow):
 
     def compare_accomplished_tasks_statistics(self):
         this_month_end = datetime.now()
-        last_month, last_year = add_delta_month(this_month_end.month, this_month_end.year, -1)
-        last_month_begin = datetime(last_year, last_month, 1)
+        last_month_begin = add_delta_month_datetime(this_month_end.year, this_month_end.month, 1, -1)
 
         accomplished = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                 FROM data_joint 
@@ -362,9 +361,8 @@ class MainWindow(QMainWindow):
         month_name = calendar.month_abbr[self.month]
         self.ui.month_label_2.setText("{} {}".format(month_name, str(self.year)[-2:]))
 
-        date = datetime(self.year, self.month, 1)
-        end_date = datetime(self.year + (self.month + 1)//12, (self.month + 1) % 12 + 1, 1)
-        start_date = datetime(self.year + (self.month - 6)//12, (self.month - 6) % 12 + 1, 1)
+        end_date = add_delta_month_datetime(self.year, self.month, 1, 1)
+        start_date = add_delta_month_datetime(self.year, self.month, 1, -5)
 
         res = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                         FROM data_joint 
@@ -423,7 +421,7 @@ class MainWindow(QMainWindow):
         widget = self.task_overviews_per_month[self.month-1]
         widget.setVisible(False)
 
-        self.month, self.year = add_delta_month(self.month, self.year, i)
+        self.year, self.month = add_delta_month(self.year, self.month, i)
 
         self.init_tasks()
         self.init_month_statistics()
