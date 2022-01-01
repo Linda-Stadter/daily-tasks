@@ -323,8 +323,20 @@ class MainWindow(QMainWindow):
                                 WHERE check_number != -1 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
                                 GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
 
-        percentage_last_month = accomplished[0][1]/total[0][1]
-        percentage_this_month = accomplished[1][1]/total[1][1]
+        accomplished = dict(accomplished)
+        total = dict(total)
+
+        last_month_str = datetime.strftime(last_month_begin, "%m-%Y")
+        this_month_str = datetime.strftime(this_month_end, "%m-%Y")
+
+        percentage_last_month = 0
+        percentage_this_month = 0
+
+        if last_month_str in total:
+            percentage_last_month = accomplished[last_month_str]/total[last_month_str]
+
+        if this_month_str in total:
+            percentage_this_month = accomplished[this_month_str]/total[this_month_str]
 
         accomplished_dif = percentage_this_month - percentage_last_month
 
@@ -372,12 +384,12 @@ class MainWindow(QMainWindow):
         x =  []
         y = []
         y_ptr = 0
-        for i in reversed(range(1,7)):
-            date = datetime(self.year + (self.month - i)//12, (self.month - i) % 12 + 1, 1)
-            x.append(calendar.month_abbr[date.month])
-            date = date.strftime('%m-%Y')
+        for i in reversed(range(6)):
+            current_date = add_delta_month_datetime(self.year, self.month, 1, -i)
+            x.append(calendar.month_abbr[current_date.month])
+            current_date = current_date.strftime('%m-%Y')
 
-            if y_ptr < len(res) and res[y_ptr][0] == date:
+            if y_ptr < len(res) and res[y_ptr][0] == current_date:
                 y.append(res[y_ptr][1])
                 y_ptr += 1
             else:
