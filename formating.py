@@ -1,4 +1,5 @@
 import datetime
+import math
 from datetime import datetime
 
 def convert_time(time): 
@@ -25,15 +26,20 @@ def interpret_accomplished_tasks_difference(dif):
         return "This month you complete {}% {} assigned tasks than last month.".format(round(abs(dif)*100), comparison)
 
 def add_delta_month(year, month, delta_months):
-    month = (month + delta_months) % 12
-    if month == 0:
-        month = 12
-        if delta_months < 0:
-            year -= 1
-    if month == 1 and delta_months > 0:
-        year += 1
+    new_month = (month + delta_months) % 12
+    new_month = 12 if new_month == 0 else new_month
+    new_year = year
+    if delta_months > 0 and new_month < month:
+        new_year += 1
+    if delta_months < 0 and new_month > month:
+        new_year -= 1
     
-    return year, month
+    if delta_months > 0:
+        new_year += abs(delta_months)//12
+    if delta_months < 0:
+        new_year -= abs(delta_months)//12
+    
+    return new_year, new_month
 
 def add_delta_month_datetime(year, month, day, delta_months):
     year, month = add_delta_month(year, month, delta_months)
