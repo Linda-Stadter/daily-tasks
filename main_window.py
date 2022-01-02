@@ -16,7 +16,7 @@ from flowlayout import FlowLayout
 
 from matplotlib.patches import FancyBboxPatch
 from mlpcanvas import * 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 class MainWindow(QMainWindow):
     widget_task_ids = {}
@@ -136,7 +136,7 @@ class MainWindow(QMainWindow):
         task = self.db_task.sql_query("SELECT * FROM tasks WHERE id = {}".format(id))
         task = task[0]
 
-        new_end_date = datetime.now() - datetime.timedelta(days=1)
+        new_end_date = datetime.now() - timedelta(days=1)
         new_days = (new_end_date - datetime.strptime(task[4],  "%Y-%m-%d")).days
         # convert to date
         new_end_date = new_end_date.date()
@@ -287,16 +287,16 @@ class MainWindow(QMainWindow):
 
             self.task_overviews_per_month[self.month-1] = scrollArea
 
-            sql_end_date = "{}-{}-01".format(self.year, self.month)
-            sql_start_date = "{}-{}-31".format(self.year, self.month)
-            tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE startDate <= strftime('%Y-%m-%d', '{}') and endDate >= strftime('%Y-%m-%d', '{}')".format(sql_start_date, sql_end_date))
+            sql_end_date = date(self.year, self.month, 1)
+            sql_start_date = add_delta_month_datetime(self.year, self.month, 1, 1).date()
+            tasks = self.db_task.sql_query("SELECT * FROM tasks WHERE startDate < strftime('%Y-%m-%d', '{}') and endDate >= strftime('%Y-%m-%d', '{}')".format(sql_start_date, sql_end_date))
             if not tasks:
                 return
             tasks.sort(key=lambda x: x[2], reverse=True)
 
             for task in tasks:
                 task_end_date = datetime.strptime(task[4],  "%Y-%m-%d") 
-                task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_end_date.date(), task[6], self.month)
+                task_widget = create_task_widget(self, task[0], task[1], task[2], task[3], task_end_date.date(), task[6], self.year, self.month)
                 self.widget_task_ids[task_widget] = task[0]
                 layout.addWidget(task_widget)
     
@@ -315,12 +315,12 @@ class MainWindow(QMainWindow):
 
         accomplished = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                 FROM data_joint 
-                                WHERE check_number > 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                WHERE check_number > 0 AND date >= strftime('%Y-%m-%d', '{}') AND date <= strftime('%Y-%m-%d', '{}') 
                                 GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
 
         total = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                 FROM data_joint 
-                                WHERE check_number != -1 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
+                                WHERE check_number != -1 AND date >= strftime('%Y-%m-%d', '{}') AND date <= strftime('%Y-%m-%d', '{}') 
                                 GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
 
         accomplished = dict(accomplished)
@@ -332,10 +332,10 @@ class MainWindow(QMainWindow):
         percentage_last_month = 0
         percentage_this_month = 0
 
-        if last_month_str in total:
+        if last_month_str in accomplished:
             percentage_last_month = accomplished[last_month_str]/total[last_month_str]
 
-        if this_month_str in total:
+        if this_month_str in accomplished:
             percentage_this_month = accomplished[this_month_str]/total[this_month_str]
 
         accomplished_dif = percentage_this_month - percentage_last_month
@@ -381,17 +381,17 @@ class MainWindow(QMainWindow):
                                         WHERE check_number > 0 AND date >= strftime('%Y-%m-%d', '{}') AND date < strftime('%Y-%m-%d', '{}') 
                                         GROUP BY strftime(\"%m-%Y\", date)""".format(start_date, end_date))
 
+        res = dict(res)
         x =  []
         y = []
-        y_ptr = 0
+
         for i in reversed(range(6)):
-            current_date = add_delta_month_datetime(self.year, self.month, 1, -i)
+            current_date = add_delta_month_datetime(self.year, self.month, 1, -i).date()
             x.append(calendar.month_abbr[current_date.month])
             current_date = current_date.strftime('%m-%Y')
 
-            if y_ptr < len(res) and res[y_ptr][0] == current_date:
-                y.append(res[y_ptr][1])
-                y_ptr += 1
+            if current_date in res:
+                y.append(res[current_date])
             else:
                 y.append(0)
 
