@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
         id = self.widget_task_ids[sender]
         sender.deleteLater()
 
-        # delte label on todo tasks
+        # delete label on todo tasks
         name = self.db_task.sql_query("SELECT taskName FROM tasks WHERE id = {}".format(id))
         name = name[0][0]
 
@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
         scrollArea = self.task_overviews_per_month[self.month-1]
 
         # add new task to task overview
-        task_widget = create_task_widget(self, task_id, name, days, duration, start, color, self.month)
+        task_widget = create_task_widget(self, task_id, name, days, duration, start, color, self.year, self.month)
         self.widget_task_ids[task_widget] = task_id
         scrollArea.widget().layout().addWidget(task_widget)
 
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
 
         total = self.db_joint.sql_query("""SELECT strftime(\"%m-%Y\", date), ifnull(count(*),0) 
                                 FROM data_joint 
-                                WHERE check_number != -1 AND date >= strftime('%Y-%m-%d', '{}') AND date <= strftime('%Y-%m-%d', '{}') 
+                                WHERE check_number != -1 AND day_id >= 0 AND date >= strftime('%Y-%m-%d', '{}') AND date <= strftime('%Y-%m-%d', '{}') 
                                 GROUP BY strftime(\"%m-%Y\", date)""".format(last_month_begin, this_month_end))
 
         accomplished = dict(accomplished)
@@ -329,19 +329,20 @@ class MainWindow(QMainWindow):
         last_month_str = datetime.strftime(last_month_begin, "%m-%Y")
         this_month_str = datetime.strftime(this_month_end, "%m-%Y")
 
-        percentage_last_month = 0
-        percentage_this_month = 0
+        percentage_last_month = accomplished.get(last_month_str, 0) / total.get(last_month_str, 1)
+        percentage_this_month = accomplished.get(this_month_str, 0) / total.get(this_month_str, 1)
+        highlights_text = []
 
-        if last_month_str in accomplished:
-            percentage_last_month = accomplished[last_month_str]/total[last_month_str]
+        if percentage_last_month:
+            accomplished_dif = percentage_this_month - percentage_last_month
+            month_dif = accomplished_dif / percentage_last_month
+            month_dif_text = interpret_accomplished_tasks_month_difference(month_dif)
+            highlights_text.append(month_dif_text)
+        
+        accomplished_tasks_text = interpret_accomplished_tasks_percentage(accomplished.get(this_month_str, 0), total.get(this_month_str, 0))
+        highlights_text.append(accomplished_tasks_text)
 
-        if this_month_str in accomplished:
-            percentage_this_month = accomplished[this_month_str]/total[this_month_str]
-
-        accomplished_dif = percentage_this_month - percentage_last_month
-
-        text = interpret_accomplished_tasks_difference(accomplished_dif/percentage_last_month)
-        self.ui.textBrowser.setText(text)
+        self.ui.textBrowser.setText(" ".join(highlights_text))
 
         y = [percentage_last_month * 100, percentage_this_month * 100]
         x = [calendar.month_abbr[last_month_begin.month], calendar.month_abbr[this_month_end.month]]

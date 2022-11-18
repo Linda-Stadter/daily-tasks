@@ -18,12 +18,20 @@ def format_list_sql_query(query, list):
         return "{} = {}".format(query, next(iter(list)))
     return "{} in {}".format(query, tuple(list))
 
-def interpret_accomplished_tasks_difference(dif):
+def interpret_accomplished_tasks_month_difference(dif):
     if abs(dif) <= 0.05:
         return "This month you complete as many assigned tasks as last month."
     else:
         comparison = "less" if dif < 0 else "more"
-        return "This month you complete {}% {} assigned tasks than last month.".format(round(abs(dif)*100), comparison)
+        percentage = round(abs(dif) * 100)
+        return "This month you complete <b>{}%</b> {} assigned tasks than last month.".format(percentage, comparison)
+
+def interpret_accomplished_tasks_percentage(accomplished, total):
+    if total == 0:
+        return "You have not assigned any tasks this month."
+
+    percentage = round(accomplished / total * 100)
+    return "You complete <b>{}%</b> of your assigned tasks this month.".format(percentage)
 
 def add_delta_month(year, month, delta_months):
     new_month = (month + delta_months) % 12
